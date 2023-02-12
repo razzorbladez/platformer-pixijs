@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head> </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/pixi.js@7.x/dist/pixi.min.js"></script>
+
+    <script>
+      // Create the PixiJS application
+      const app = new PIXI.Application({
+        width: 800,
+        height: 600,
+        backgroundColor: 0x1099bb,
+      });
+
+      // Add the PixiJS application to the HTML document
+      document.body.appendChild(app.view);
+
+      // Set the player's jump velocity
+      let jumpVelocity = -10;
+      // Create the player sprite
+      const player = new PIXI.Sprite(PIXI.Texture.from("player.png"));
+      player.x = 100;
+      player.y = 100;
+      player.width = 50;
+      player.height = 50;
+      app.stage.addChild(player);
+
+      // Create the platforms
+      const platforms = [];
+      for (let i = 0; i < 10; i++) {
+        const platform = new PIXI.Sprite(PIXI.Texture.from("platform.png"));
+        platform.x = Math.random() * app.screen.width;
+        platform.y = Math.random() * app.screen.height;
+        platform.width = 100;
+        platform.height = 20;
+        platforms.push(platform);
+        app.stage.addChild(platform);
+      }
+
+      // Set the player's velocity
+      let vy = 0;
+      // Set the player's horizontal velocity
+      let vx = 0;
+
+      // Listen for keyboard events
+      document.addEventListener("keydown", (event) => {
+        switch (event.keyCode) {
+          case 37: // Left arrow key
+            vx = -5;
+            break;
+          case 39: // Right arrow key
+            vx = 5;
+            break;
+          case 38: // Up arrow key
+            console.log("UP KEY DETECTED!!!");
+            // TODO: This if statement is never true while playing the game.  Fix this to allow the player to jump
+            // if (player.y >= app.screen.height - player.height) {
+            console.log("IN HERERERE!!!");
+            vy = jumpVelocity;
+            // }
+            break;
+        }
+      });
+
+      document.addEventListener("keyup", (event) => {
+        switch (event.keyCode) {
+          case 37: // Left arrow key
+          case 39: // Right arrow key
+            vx = 0;
+            break;
+        }
+      });
+
+      // Listen for the PixiJS ticker event
+      app.ticker.add((delta) => {
+        // Apply gravity to the player's velocity
+        vy += 0.5;
+
+        // Move the player horizontally
+        player.x += vx;
+
+        // Move the player vertically
+        player.y += vy;
+
+        // Check for collisions with the platforms
+        for (const platform of platforms) {
+          if (isColliding(player, platform)) {
+            if (vy > 0) {
+              player.y = platform.y - player.height;
+              vy = 0;
+            } else {
+              player.x = platform.x - player.width;
+            }
+          }
+        }
+      });
+
+      // Check for collisions between two sprites
+      function isColliding(a, b) {
+        return (
+          a.x < b.x + b.width &&
+          a.x + a.width > b.x &&
+          a.y < b.y + b.height &&
+          a.y + a.height > b.y
+        );
+      }
+    </script>
+  </body>
+</html>
